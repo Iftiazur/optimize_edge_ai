@@ -13,18 +13,17 @@ from typing import Dict, List, Any, Optional
 from pathlib import Path
 
 # Import all pipeline components
-from models.base_model import create_model, get_model_info
-from compression.pruning import MagnitudePruning, compare_pruning_methods
-from compression.quantization import PostTrainingQuantization, compare_quantization_methods
-from compression.distillation import KnowledgeDistillation, compare_distillation_strategies
-from federated.client import ClientManager
-from federated.server import FederatedServer, compare_aggregation_methods
-from metrics.performance import MetricsCollector, BenchmarkSuite
-from metrics.visualization import VisualizationEngine
-from utils.data_loader import DataLoader
-from utils.device_simulator import EdgeDeviceSimulator
-from utils.config import *
-
+from edge_ai_pipeline.models.base_model import create_model, get_model_info
+from edge_ai_pipeline.compression.pruning import MagnitudePruning, compare_pruning_methods
+from edge_ai_pipeline.compression.quantization import PostTrainingQuantization, compare_quantization_methods
+from edge_ai_pipeline.compression.distillation import KnowledgeDistillation, compare_distillation_strategies
+from edge_ai_pipeline.federated.client import ClientManager
+from edge_ai_pipeline.federated.server import FederatedServer, compare_aggregation_methods
+from edge_ai_pipeline.metrics.performance import MetricsCollector, BenchmarkSuite
+from edge_ai_pipeline.metrics.visualization import VisualizationEngine
+from edge_ai_pipeline.utils.data_loader import DataLoader
+from edge_ai_pipeline.utils.device_simulator import EdgeDeviceSimulator
+from edge_ai_pipeline.utils.config import *
 # Set up logging
 logging.basicConfig(
     level=getattr(logging, LOG_LEVEL),

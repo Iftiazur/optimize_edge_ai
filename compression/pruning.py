@@ -127,32 +127,15 @@ class MagnitudePruning:
         
         for name, module in self.model.named_modules():
             if isinstance(module, nn.Conv2d):
-                # Calculate filter importance (L2 norm)
-                filter_norms = torch.norm(module.weight.data, p=2, dim=(1, 2, 3))
-                num_filters_to_prune = int(module.out_channels * pruning_ratio)
-                
-                if num_filters_to_prune > 0:
-                    # Get indices of filters to prune (lowest importance)
-                    _, indices_to_prune = torch.topk(filter_norms, num_filters_to_prune, largest=False)
-                    
-                    # Create structured pruning mask
-                    prune.structured(module, name='weight', amount=num_filters_to_prune, 
-                                   dim=0, importance_scores=filter_norms)
-                    self.pruned_modules.append((module, 'weight'))
-                
+                # Structured filter pruning (prune output channels)
+                prune.ln_structured(module, name='weight', amount=pruning_ratio, n=2, dim=0)
+                self.pruned_modules.append((module, 'weight'))
                 total_params += module.weight.numel()
                 pruned_params += (module.weight == 0).sum().item()
-                
             elif isinstance(module, nn.Linear):
-                # Prune neurons based on weight magnitude
-                neuron_importance = torch.norm(module.weight.data, p=2, dim=1)
-                num_neurons_to_prune = int(module.out_features * pruning_ratio)
-                
-                if num_neurons_to_prune > 0:
-                    prune.structured(module, name='weight', amount=num_neurons_to_prune, 
-                                   dim=0, importance_scores=neuron_importance)
-                    self.pruned_modules.append((module, 'weight'))
-                
+                # Structured neuron pruning (prune output neurons)
+                prune.ln_structured(module, name='weight', amount=pruning_ratio, n=2, dim=1)
+                self.pruned_modules.append((module, 'weight'))
                 total_params += module.weight.numel()
                 pruned_params += (module.weight == 0).sum().item()
         
@@ -307,8 +290,8 @@ class ChannelPruning:
                 _, indices_to_prune = torch.topk(importance_scores, channels_to_prune, largest=False)
                 
                 # Apply structured pruning
-                prune.structured(module, name='weight', amount=channels_to_prune, 
-                               dim=0, importance_scores=importance_scores)
+                prune.ln_structured(module, name='weight', amount=channels_to_prune, 
+                               dim=0, n=2)
                 
                 remaining_channels = original_channels - channels_to_prune
                 pruning_stats[name] = {
